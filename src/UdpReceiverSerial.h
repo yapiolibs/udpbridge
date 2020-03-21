@@ -1,6 +1,6 @@
 #pragma once
 
-#include <bridge/BridgeUdp.h>
+#include <BridgeUdp.h>
 #include <cstdint>
 
 // -------------------------------------------------------------------------------------------------
