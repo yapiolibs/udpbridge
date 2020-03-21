@@ -1,0 +1,28 @@
+{
+  "name": "Mpr121Keyboard",
+  "keywords": "MPR 121, keyboard",
+  "description": "wireless UDP bridge (unicast or multicast)",
+  "homepage": "https://github.com/yapiolibs/udpbridge",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yapiolibs/udpbridge.git"
+  },
+  "authors": [
+    {
+        "name": "Raoul Rubien",
+        "url": "https://github.com/rubienr",
+        "maintainer" : "true"
+    }
+  ],
+
+  "dependencies":
+  {
+    "name": "6005",
+    "authors": "Hideaki Tai",
+    "frameworks": "*"
+  },
+
+  "version": "0.1",
+  "frameworks": "arduino",
+  "platforms": "espressif8266"
+}
