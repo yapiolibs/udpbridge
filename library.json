@@ -17,7 +17,10 @@
 
   "dependencies":
   {
-    "id": "6005",
+    
+    "_comment": "name: CRC is ambiguous, id: 6005 does not work in library.json -> version: gh_repo"
+    "name": "CRC",
+    "version": "https://github.com/hideakitai/CRC"
     "authors": "Hideaki Tai",
     "frameworks": "*"
   },
