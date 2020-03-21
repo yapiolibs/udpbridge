@@ -17,7 +17,7 @@
 
   "dependencies":
   {
-    "name": "6005",
+    "name": "CRC",
     "authors": "Hideaki Tai",
     "frameworks": "*"
   },
