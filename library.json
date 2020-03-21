@@ -1,7 +1,7 @@
 {
-  "name": "Mpr121Keyboard",
-  "keywords": "MPR 121, keyboard",
-  "description": "wireless UDP bridge (unicast or multicast)",
+  "name": "UdpBridge",
+  "keywords": "UDP, multicast, unicast, bridge, serial",
+  "description": "wireless UDP bridge (unicast or multicast) for sending data transparently",
   "homepage": "https://github.com/yapiolibs/udpbridge",
   "repository": {
     "type": "git",
