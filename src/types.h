@@ -6,15 +6,18 @@
 
 // -------------------------------------------------------------------------------------------------
 
-template <uint8_t buffer_size> struct Payload
+template <uint16_t buffer_size> struct Payload
 {
     //!< On AVR based boards, outgoing UDP packets are limited to 72 bytes in size currently.
     //!< For non-AVR boards the limit is 1446 bytes.
     //!< See: https://www.arduino.cc/en/Reference/WiFiUDPConstructor
-    uint8_t bytes_buffered{ 0 };
+    uint16_t bytes_buffered{ 0 };
     uint8_t data[buffer_size]{ 0 };
 
-    uint8_t dynamicSize() const { return (buffer_size - bytes_buffered); }
+    uint16_t dynamicSize() const
+    {
+        return static_cast<uint16_t>(sizeof(bytes_buffered)) + bytes_buffered;
+    }
 };
 
 // -------------------------------------------------------------------------------------------------
@@ -28,12 +31,12 @@ struct Header
     };
     Type type{ Type::DATA };
 
-    uint8_t dynamicSize() const { return static_cast<uint8_t>(sizeof(Header)); }
+    uint16_t dynamicSize() const { return static_cast<uint16_t>(sizeof(Header)); }
 };
 
 // -------------------------------------------------------------------------------------------------
 
-template <uint8_t payload_buffer_size> struct Package
+template <uint16_t payload_buffer_size> struct Package
 {
     using Payload_t = Payload<payload_buffer_size>;
 
@@ -43,13 +46,14 @@ template <uint8_t payload_buffer_size> struct Package
     uint8_t *toUint8Ptr() { return reinterpret_cast<uint8_t *>(this); }
     const uint8_t *toUint8Ptr() const { return reinterpret_cast<const uint8_t *>(this); }
 
-    uint8_t dynamicSize() const { return header.dynamicSize() + payload.dynamicSize(); }
+
+    uint16_t dynamicSize() const { return header.dynamicSize() + payload.dynamicSize(); }
 };
 
 
 // -------------------------------------------------------------------------------------------------
 
-template <uint8_t package_payload_buffer_size> struct Datagram
+template <uint16_t package_payload_buffer_size> struct Datagram
 {
     using Package_t = Package<package_payload_buffer_size>;
     using CrcType = uint16_t;
@@ -66,9 +70,9 @@ template <uint8_t package_payload_buffer_size> struct Datagram
     /**
      * @return the size of the package considering the buffered/valid bytes
      */
-    uint8_t dynamicSize() const
+    uint16_t dynamicSize() const
     {
-        return static_cast<uint8_t>(sizeof(CrcType) + package.dynamicSize());
+        return static_cast<uint16_t>(sizeof(CrcType)) + package.dynamicSize();
     }
 
     void updateCrc() { crc = CRC::crc16(package.toUint8Ptr(), dynamicSize()); }
@@ -78,7 +82,7 @@ template <uint8_t package_payload_buffer_size> struct Datagram
 
 // -------------------------------------------------------------------------------------------------
 
-template <uint8_t buffer_size> String toString(const Payload<buffer_size> &p)
+template <uint16_t buffer_size> String toString(const Payload<buffer_size> &p)
 {
     String s{ "Payload: {bytes_buffered: " };
     s.concat(p.bytes_buffered);
@@ -103,7 +107,7 @@ String toString(const Header &h)
 
 // -------------------------------------------------------------------------------------------------
 
-template <uint8_t payload_buffer_size> String toString(const Package<payload_buffer_size> &p)
+template <uint16_t payload_buffer_size> String toString(const Package<payload_buffer_size> &p)
 {
     String s{ "Package: {" };
     s.concat(toString(p.header));
@@ -115,7 +119,7 @@ template <uint8_t payload_buffer_size> String toString(const Package<payload_buf
 
 // -------------------------------------------------------------------------------------------------
 
-template <uint8_t package_payload_buffer_size>
+template <uint16_t package_payload_buffer_size>
 String toString(const Datagram<package_payload_buffer_size> &d)
 {
     String s{ "Datagram: {" };

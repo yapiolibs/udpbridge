@@ -9,7 +9,7 @@
 
 // -------------------------------------------------------------------------------------------------
 
-template <uint8_t package_payload_buffer_size> struct DatagramReceiver
+template <uint16_t package_payload_buffer_size> struct DatagramReceiver
 {
     virtual void take(const Datagram<package_payload_buffer_size> &datagram) = 0;
 };
@@ -33,9 +33,9 @@ template <uint8_t package_payload_buffer_size> struct DatagramReceiver
  *
  * @tparam package_payload_buffer_size the maximum payload size, for limits see \ref Payload
  */
-template <uint8_t package_payload_buffer_size> struct BridgeUdp
+template <uint16_t package_payload_buffer_size> struct BridgeUdp
 {
-    static const uint8_t PACKAGE_PAYLOAD_BUFFER_SIZE{ package_payload_buffer_size };
+    static const uint16_t PACKAGE_PAYLOAD_BUFFER_SIZE{ package_payload_buffer_size };
     using Datagram_t = Datagram<package_payload_buffer_size>;
     using DatagramReceiver_t = DatagramReceiver<package_payload_buffer_size>;
 
@@ -92,7 +92,7 @@ private:
 
 // -------------------------------------------------------------------------------------------------
 
-template <uint8_t package_payload_buffer_size>
+template <uint16_t package_payload_buffer_size>
 BridgeUdp<package_payload_buffer_size>::BridgeUdp(const IPAddress &destination_address, uint16_t port, bool multicast, bool log_to_serial)
 : multicast_mode{ multicast }, destination_address{ destination_address }, host_name{ "" }, port{ port }, log_verbose_on{ log_to_serial }
 {
@@ -100,7 +100,7 @@ BridgeUdp<package_payload_buffer_size>::BridgeUdp(const IPAddress &destination_a
 
 // -------------------------------------------------------------------------------------------------
 
-template <uint8_t package_payload_buffer_size>
+template <uint16_t package_payload_buffer_size>
 BridgeUdp<package_payload_buffer_size>::BridgeUdp(String host_name, uint16_t port, bool log_to_serial)
 : multicast_mode{ false }, destination_address{ 0, 0, 0, 0 }, host_name{ std::move(host_name) }, port{ port }, log_verbose_on{ log_to_serial }
 {
@@ -108,7 +108,7 @@ BridgeUdp<package_payload_buffer_size>::BridgeUdp(String host_name, uint16_t por
 
 // -------------------------------------------------------------------------------------------------
 
-template <uint8_t package_payload_buffer_size> bool BridgeUdp<package_payload_buffer_size>::setup()
+template <uint16_t package_payload_buffer_size> bool BridgeUdp<package_payload_buffer_size>::setup()
 {
     udp.stop();
     udp.stopAll();
@@ -155,13 +155,13 @@ template <uint8_t package_payload_buffer_size> bool BridgeUdp<package_payload_bu
 
 // -------------------------------------------------------------------------------------------------
 
-template <uint8_t package_payload_buffer_size>
+template <uint16_t package_payload_buffer_size>
 bool BridgeUdp<package_payload_buffer_size>::process()
 {
     static Datagram_t datagram;
     bool processed{ false };
     const uint8_t minimum_packet_size{ static_cast<uint8_t>(
-    sizeof(Datagram_t) - sizeof(BridgeUdp::PACKAGE_PAYLOAD_BUFFER_SIZE)) };
+    sizeof(Datagram_t) - BridgeUdp::PACKAGE_PAYLOAD_BUFFER_SIZE) };
 
     int datagram_size{ udp.parsePacket() };
     if(datagram_size > 0)
@@ -210,7 +210,7 @@ bool BridgeUdp<package_payload_buffer_size>::process()
 
 // -------------------------------------------------------------------------------------------------
 
-template <uint8_t package_payload_buffer_size>
+template <uint16_t package_payload_buffer_size>
 bool BridgeUdp<package_payload_buffer_size>::setDatagramReceiver(DatagramReceiver_t *datagram_receiver)
 {
     if(receiver != datagram_receiver)
@@ -225,7 +225,7 @@ bool BridgeUdp<package_payload_buffer_size>::setDatagramReceiver(DatagramReceive
 
 // -------------------------------------------------------------------------------------------------
 
-template <uint8_t package_payload_buffer_size>
+template <uint16_t package_payload_buffer_size>
 bool BridgeUdp<package_payload_buffer_size>::send(Datagram_t &datagram)
 {
     if(log_verbose_on)
@@ -297,7 +297,7 @@ bool BridgeUdp<package_payload_buffer_size>::send(Datagram_t &datagram)
 
 // -------------------------------------------------------------------------------------------------
 
-template <uint8_t package_payload_buffer_size>
+template <uint16_t package_payload_buffer_size>
 void BridgeUdp<package_payload_buffer_size>::setVerbose(bool verbose_on)
 {
     log_verbose_on = verbose_on;
@@ -305,7 +305,7 @@ void BridgeUdp<package_payload_buffer_size>::setVerbose(bool verbose_on)
 
 // -------------------------------------------------------------------------------------------------
 
-template <uint8_t package_payload_buffer_size>
+template <uint16_t package_payload_buffer_size>
 void BridgeUdp<package_payload_buffer_size>::setSetLogErrorsOff(bool errors_off)
 {
     log_errors_off = errors_off;
@@ -313,7 +313,7 @@ void BridgeUdp<package_payload_buffer_size>::setSetLogErrorsOff(bool errors_off)
 
 // -------------------------------------------------------------------------------------------------
 
-template <uint8_t package_payload_buffer_size>
+template <uint16_t package_payload_buffer_size>
 void BridgeUdp<package_payload_buffer_size>::fetchLocalIp()
 {
     local_ip = WiFi.softAPIP();

@@ -1,11 +1,12 @@
 #pragma once
 
+#include <HardwareSerial.h>
 #include <BridgeUdp.h>
 #include <cstdint>
 
 // -------------------------------------------------------------------------------------------------
 
-template <uint8_t payload_buffer_size>
+template <uint16_t payload_buffer_size>
 struct UdpReceiverSerial : public DatagramReceiver<payload_buffer_size>
 {
     void setup();
@@ -18,14 +19,14 @@ private:
 
 // -------------------------------------------------------------------------------------------------
 
-template <uint8_t payload_buffer_size> void UdpReceiverSerial<payload_buffer_size>::setup() {}
+template <uint16_t payload_buffer_size> void UdpReceiverSerial<payload_buffer_size>::setup() {}
 
 // -------------------------------------------------------------------------------------------------
 
-template <uint8_t payload_buffer_size>
+template <uint16_t payload_buffer_size>
 void UdpReceiverSerial<payload_buffer_size>::take(const Datagram<payload_buffer_size> &datagram)
 {
-    uint8_t bytes_buffered{ datagram.package.payload.bytes_buffered };
+    uint16_t bytes_buffered{ datagram.package.payload.bytes_buffered };
 
     memcpy(buffer, datagram.package.payload.data, bytes_buffered);
     buffer[datagram.package.payload.bytes_buffered + 1] = 0;
