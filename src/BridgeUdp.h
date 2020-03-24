@@ -292,7 +292,7 @@ bool BridgeUdp<package_payload_buffer_size>::send(Datagram_t &datagram)
     }
 
     if(log_verbose_on)
-        Serial.printf("BridgeUdp::send: sent datagram %s\n", toString(datagram).c_str());
+        Serial.printf("BridgeUdp::send: sent %s\n", toString(datagram).c_str());
 
     return true;
 }
