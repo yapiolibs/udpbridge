@@ -40,9 +40,9 @@ template <uint16_t package_payload_buffer_size> struct BridgeUdp
 
     //!< multicast or unicast
     explicit BridgeUdp(const IPAddress &destination_address = { 239, 0, 0, 1 },
-              uint16_t port = 8266,
-              bool multicast = true,
-              bool log_to_serial = true);
+                       uint16_t port = 8266,
+                       bool multicast = true,
+                       bool log_to_serial = true);
 
     //!< unicast only
     explicit BridgeUdp(String hostname, uint16_t port = 8266, bool log_to_serial = true);
@@ -92,7 +92,10 @@ private:
 // -------------------------------------------------------------------------------------------------
 
 template <uint16_t package_payload_buffer_size>
-BridgeUdp<package_payload_buffer_size>::BridgeUdp(const IPAddress &destination_address, uint16_t port, bool multicast, bool log_to_serial)
+BridgeUdp<package_payload_buffer_size>::BridgeUdp(const IPAddress &destination_address,
+                                                  uint16_t port,
+                                                  bool multicast,
+                                                  bool log_to_serial)
 : multicast_mode{ multicast }, destination_address{ destination_address }, host_name{ "" }, port{ port }, log_verbose_on{ log_to_serial }
 {
 }
@@ -165,11 +168,6 @@ bool BridgeUdp<package_payload_buffer_size>::process()
     int datagram_size{ udp.parsePacket() };
     if(datagram_size > 0)
     {
-        Serial.printf("BridgeUdp::process: sizeof datagram_t %d\n", sizeof(Datagram_t));
-        Serial.printf("BridgeUdp::process: buff size %d\n", sizeof(datagram.package.payload.data));
-        Serial.printf("BridgeUdp::process: total %d\n", static_cast<uint8_t>(
-        sizeof(Datagram_t) - sizeof(datagram.package.payload.data)));
-
         if(log_verbose_on)
         {
             Serial.printf("BridgeUdp::process: received UDP packet size %d from ", datagram_size);
@@ -177,8 +175,8 @@ bool BridgeUdp<package_payload_buffer_size>::process()
             Serial.printf(":%d\n", udp.remotePort());
         }
 
-        for(uint16_t len = static_cast<uint16_t >(udp.read(datagram.toUint8Ptr(), sizeof(Datagram_t))); len > 0;
-            len = static_cast<uint16_t >(udp.read(datagram.toUint8Ptr(), sizeof(Datagram_t))))
+        for(uint16_t len = static_cast<uint16_t>(udp.read(datagram.toUint8Ptr(), sizeof(Datagram_t)));
+            len > 0; len = static_cast<uint16_t>(udp.read(datagram.toUint8Ptr(), sizeof(Datagram_t))))
         {
             if(len < minimum_packet_size)
             {
