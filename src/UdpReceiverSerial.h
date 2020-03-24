@@ -26,10 +26,7 @@ template <uint16_t payload_buffer_size> void UdpReceiverSerial<payload_buffer_si
 template <uint16_t payload_buffer_size>
 void UdpReceiverSerial<payload_buffer_size>::take(const Datagram<payload_buffer_size> &datagram)
 {
-    uint16_t bytes_buffered{ datagram.package.payload.bytes_buffered };
-
-    memcpy(buffer, datagram.package.payload.data, bytes_buffered);
-    buffer[datagram.package.payload.bytes_buffered + 1] = 0;
-
-    Serial.printf("%s\n", buffer);
+    memcpy(&buffer, datagram.package.payload.data, datagram.package.payload.bytes_buffered);
+    buffer[datagram.package.payload.bytes_buffered] = 0;
+    Serial.printf("%s", buffer);
 }
