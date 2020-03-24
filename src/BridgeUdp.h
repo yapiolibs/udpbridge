@@ -35,7 +35,6 @@ template <uint16_t package_payload_buffer_size> struct DatagramReceiver
  */
 template <uint16_t package_payload_buffer_size> struct BridgeUdp
 {
-    static const uint16_t PACKAGE_PAYLOAD_BUFFER_SIZE{ package_payload_buffer_size };
     using Datagram_t = Datagram<package_payload_buffer_size>;
     using DatagramReceiver_t = DatagramReceiver<package_payload_buffer_size>;
 
@@ -160,12 +159,17 @@ bool BridgeUdp<package_payload_buffer_size>::process()
 {
     static Datagram_t datagram;
     bool processed{ false };
-    const uint8_t minimum_packet_size{ static_cast<uint8_t>(
-    sizeof(Datagram_t) - BridgeUdp::PACKAGE_PAYLOAD_BUFFER_SIZE) };
+    constexpr uint8_t minimum_packet_size{ static_cast<uint8_t>(
+    sizeof(Datagram_t) - sizeof(datagram.package.payload.data)) };
 
     int datagram_size{ udp.parsePacket() };
     if(datagram_size > 0)
     {
+        Serial.printf("BridgeUdp::process: sizeof datagram_t %d\n", sizeof(Datagram_t));
+        Serial.printf("BridgeUdp::process: buff size %d\n", sizeof(datagram.package.payload.data));
+        Serial.printf("BridgeUdp::process: total %d\n", static_cast<uint8_t>(
+        sizeof(Datagram_t) - sizeof(datagram.package.payload.data)));
+
         if(log_verbose_on)
         {
             Serial.printf("BridgeUdp::process: received UDP packet size %d from ", datagram_size);
@@ -270,7 +274,7 @@ bool BridgeUdp<package_payload_buffer_size>::send(Datagram_t &datagram)
     uint16_t old_crc = datagram.crc;
     datagram.updateCrc();
 
-    if(0 == udp.write(datagram.toUint8Ptr(), datagram.dynamicSize()))
+    if(datagram.dynamicSize() != udp.write(datagram.toUint8Ptr(), datagram.dynamicSize()))
     {
         if(!log_errors_off)
             Serial.printf("BridgeUdp::send: failed to write %s package\n",

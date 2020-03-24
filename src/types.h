@@ -18,7 +18,7 @@ template <uint16_t buffer_size> struct Payload
     {
         return static_cast<uint16_t>(sizeof(bytes_buffered)) + bytes_buffered;
     }
-};
+} __attribute__ ((packed));
 
 // -------------------------------------------------------------------------------------------------
 
@@ -32,7 +32,7 @@ struct Header
     Type type{ Type::DATA };
 
     uint16_t dynamicSize() const { return static_cast<uint16_t>(sizeof(Header)); }
-};
+} __attribute__ ((packed));
 
 // -------------------------------------------------------------------------------------------------
 
@@ -48,7 +48,7 @@ template <uint16_t payload_buffer_size> struct Package
 
 
     uint16_t dynamicSize() const { return header.dynamicSize() + payload.dynamicSize(); }
-};
+} __attribute__ ((packed));
 
 
 // -------------------------------------------------------------------------------------------------
@@ -56,9 +56,8 @@ template <uint16_t payload_buffer_size> struct Package
 template <uint16_t package_payload_buffer_size> struct Datagram
 {
     using Package_t = Package<package_payload_buffer_size>;
-    using CrcType = uint16_t;
 
-    CrcType crc{ 0 };
+    uint16_t crc{ 0 };
     Package_t package;
 
     void fromBytes(void *bytes) { memcpy(this, bytes, sizeof(Datagram)); }
@@ -72,13 +71,13 @@ template <uint16_t package_payload_buffer_size> struct Datagram
      */
     uint16_t dynamicSize() const
     {
-        return static_cast<uint16_t>(sizeof(CrcType)) + package.dynamicSize();
+        return static_cast<uint16_t>(sizeof(crc)) + package.dynamicSize();
     }
 
     void updateCrc() { crc = CRC::crc16(package.toUint8Ptr(), dynamicSize()); }
 
     bool verifyCrc() { return crc == CRC::crc16(package.toUint8Ptr(), dynamicSize()); }
-};
+} __attribute__ ((packed));
 
 // -------------------------------------------------------------------------------------------------
 

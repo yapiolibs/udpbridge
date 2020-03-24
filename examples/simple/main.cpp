@@ -48,7 +48,7 @@ void loop()
     if (line.length() > 0)
     {
         BridgeUdp_t::Datagram_t datagram;
-        if(line.length() <= BridgeUdp_t::PACKAGE_PAYLOAD_BUFFER_SIZE)
+        if(line.length() <= sizeof(datagram.package.payload.data))
         {
             memcpy(datagram.package.payload.data, line.c_str(), line.length());
             datagram.package.payload.bytes_buffered = static_cast<uint8_t>(line.length());
