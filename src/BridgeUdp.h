@@ -75,7 +75,7 @@ struct BridgeUdp : public DatagramReceiver<package_payload_buffer_size>
      * @param datagram data to send
      * @return true if sent successfully, false otherwise
      */
-    void take(const Datagram<package_payload_buffer_size> &datagram) override;
+    bool take(Datagram_t &datagram) override;
 
     //!< en-/disables logging info to serial
     void setVerbose(bool verbose_on);
