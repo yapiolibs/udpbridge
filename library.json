@@ -15,15 +15,21 @@
     }
   ],
 
-  "dependencies":
-  {
-    
-    "_comment": "name: CRC is ambiguous, id: 6005 does not work in library.json -> version: gh_repo",
-    "name": "CRC",
-    "version": "https://github.com/hideakitai/CRC",
-    "authors": "Hideaki Tai",
-    "frameworks": "*"
-  },
+  "dependencies": [
+    {
+      "_comment": "name: CRC is ambiguous, id: 6005 does not work in library.json -> version: gh_repo",
+      "name": "CRC",
+      "version": "https://github.com/hideakitai/CRC",
+      "authors": "Hideaki Tai",
+      "frameworks": "*"
+    },
+    {
+      "name": "SerialLineReader",
+      "version": "https://github.com/yapiolibs/seriallinereader",
+      "authors": "Raoul Rubien",
+      "frameworks": "arduino"
+    }
+  ],
 
   "version": "0.1",
   "frameworks": "arduino",

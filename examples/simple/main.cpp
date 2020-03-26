@@ -1,26 +1,25 @@
 #include <BridgeUdp.h>
 
-
 constexpr const uint8_t MESSAGE_PAYLOAD_BUFFER = 255;
-using BridgeUdp_t = BridgeUdp<MESSAGE_PAYLOAD_BUFFER>;
 using UdpReceiverSerial_t = UdpReceiverSerial<MESSAGE_PAYLOAD_BUFFER>;
+using BridgeUdp_t = BridgeUdp<MESSAGE_PAYLOAD_BUFFER>;
+using SerialReaderUdp_t = SerialReaderUdp<MESSAGE_PAYLOAD_BUFFER>;
 
-// 239.0.0.1:8622, multicast
-BridgeUdp_t bridge{{239, 0, 0, 1}, 8622, true };
+// multicast bridge joined network 239.0.0.1 with port 8622
+BridgeUdp_t bridge{ { 239, 0, 0, 1 }, 8622, true };
 
-// datagram receiver
+// receives from bridge, sends to serial
 UdpReceiverSerial_t datagram_receiver_serial;
 
-// true  ... AP wifi mode
-// false ... STA wifi mode
-bool server_mode = false;
+// reads from serial, sends to bridge
+SerialReaderUdp_t serial_reader;
 
-bool isWifiConnected();
-bool serialReadLine();
+bool isServerMode(){ /* ... */ };
+bool isWifiConnected(){ /* ... */ };
 
 void setup()
 {
-    if(server_mode)
+    if(isServerMode())
     {
         WiFi.mode(WIFI_AP);
         WiFi.softAP("udp-bridge", "");
@@ -31,48 +30,22 @@ void setup()
         WiFi.begin("udp-bridge", "");
     }
 
-    while (!isWifiConnected()){}
-    
+    while(!isWifiConnected()) {}
+
     datagram_receiver_serial.setup();
+
     bridge.setup(); // call each time wifi is reconnected
     bridge.setDatagramReceiver(&datagram_receiver_serial);
+
+    serial_reader.setup();
+    serial_reader.setDatagramReceiver(&bridge);
 }
 
 void loop()
 {
-    // read udp -> send to serial
-    bridge.process()
-    
-    // read serial -> write to udp
-    String line = serialReadLine();
-    if (line.length() > 0)
-    {
-        BridgeUdp_t::Datagram_t datagram;
-        if(line.length() <= sizeof(datagram.package.payload.data))
-        {
-            memcpy(datagram.package.payload.data, line.c_str(), line.length());
-            datagram.package.payload.bytes_buffered = static_cast<uint8_t>(line.length());
-            bridge.send(datagram);
-        }
-    }
-}
+    // read udp -> write to serial
+    bridge.process();
 
-bool isWifiConnected()
-{
-    if(server_mode && WiFi.softAPgetStationNum() > 0)
-    {
-        return true;
-    }
-
-    if(!server_mode && WiFi.isConnected())
-    {
-        return true;
-    }
-
-    return false;
-}
-
-String serialReadLine()
-{
-    // returns "" or full line, non blocking
+    // read serial -> send UDP
+    serial_reader.process();
 }

@@ -11,7 +11,9 @@
 
 template <uint16_t package_payload_buffer_size> struct DatagramReceiver
 {
-    virtual void take(const Datagram<package_payload_buffer_size> &datagram) = 0;
+    using Datagram_t = Datagram<package_payload_buffer_size>;
+
+    virtual bool take(Datagram_t &datagram) = 0;
 };
 
 // -------------------------------------------------------------------------------------------------
@@ -33,7 +35,8 @@ template <uint16_t package_payload_buffer_size> struct DatagramReceiver
  *
  * @tparam package_payload_buffer_size the maximum payload size, for limits see \ref Payload
  */
-template <uint16_t package_payload_buffer_size> struct BridgeUdp
+template <uint16_t package_payload_buffer_size>
+struct BridgeUdp : public DatagramReceiver<package_payload_buffer_size>
 {
     using Datagram_t = Datagram<package_payload_buffer_size>;
     using DatagramReceiver_t = DatagramReceiver<package_payload_buffer_size>;
@@ -53,20 +56,26 @@ template <uint16_t package_payload_buffer_size> struct BridgeUdp
     // { 224, 0, 1, x } route-able
     // { 239, 0, 0, 57 } port 12345
 
-
     bool setup();
 
     bool process();
 
-
     bool setDatagramReceiver(DatagramReceiver_t *datagram_receiver);
+
+    /**
+     * Updates the CRC and sends the data
+     * @deprecated
+     * @param datagram data to send
+     * @return true if sent successfully, false otherwise
+     */
+    bool send(Datagram_t &datagram);
 
     /**
      * Updates the CRC and sends the data
      * @param datagram data to send
      * @return true if sent successfully, false otherwise
      */
-    bool send(Datagram_t &datagram);
+    void take(const Datagram<package_payload_buffer_size> &datagram) override;
 
     //!< en-/disables logging info to serial
     void setVerbose(bool verbose_on);
@@ -297,6 +306,13 @@ bool BridgeUdp<package_payload_buffer_size>::send(Datagram_t &datagram)
     return true;
 }
 
+// -------------------------------------------------------------------------------------------------
+
+template <uint16_t package_payload_buffer_size>
+bool BridgeUdp<package_payload_buffer_size>::take(Datagram_t &datagram)
+{
+    return send(datagram);
+}
 // -------------------------------------------------------------------------------------------------
 
 template <uint16_t package_payload_buffer_size>
